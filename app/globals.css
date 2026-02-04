@@ -1,0 +1,352 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  --azul-blue: #1a6fb0;
+  --azul-yellow: #e8a838;
+  --azul-red: #c43a3a;
+  --azul-black: #2d2d2d;
+  --azul-cyan: #3ab8b0;
+  --azul-bg: #0c1a2e;
+  --azul-panel: #132240;
+  --azul-surface: #1a2d4d;
+  --azul-gold: #c9a84c;
+  --azul-accent: #4a9eff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--azul-bg);
+  color: #e0e8f0;
+  font-family: "DM Sans", sans-serif;
+  overflow-x: hidden;
+}
+
+/* ─── Tile Styles ─────────────────────────────────────────── */
+.tile {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tile:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.tile-blue {
+  background: linear-gradient(135deg, #1a6fb0, #2488d4);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tile-yellow {
+  background: linear-gradient(135deg, #d49520, #e8a838);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tile-red {
+  background: linear-gradient(135deg, #a82e2e, #c43a3a);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tile-black {
+  background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tile-cyan {
+  background: linear-gradient(135deg, #2a9e98, #3ab8b0);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tile-starter {
+  background: linear-gradient(135deg, #888, #aaa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #222;
+}
+
+.tile-small {
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+}
+
+.tile-mini {
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+}
+
+/* ─── Pattern tiles ─────────────────────────────────────── */
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.06) 2px,
+    rgba(255, 255, 255, 0.06) 4px
+  );
+  pointer-events: none;
+}
+
+/* ─── Factory Display ─────────────────────────────────────── */
+.factory {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1e3456, #152845);
+  border: 3px solid #2a4a6e;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 12px;
+  position: relative;
+  transition: box-shadow 0.2s ease;
+}
+
+.factory.highlighted {
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.4);
+  border-color: var(--azul-accent);
+}
+
+/* ─── Wall Cell ───────────────────────────────────────────── */
+.wall-cell {
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.wall-cell.filled {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.wall-cell.ghost {
+  opacity: 0.15;
+}
+
+/* ─── Score Track ─────────────────────────────────────────── */
+.score-pip {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Animations ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 158, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(74, 158, 255, 0);
+  }
+}
+
+@keyframes scorePop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse 2s infinite;
+}
+
+.animate-score-pop {
+  animation: scorePop 0.3s ease;
+}
+
+/* ─── Panel Styles ────────────────────────────────────────── */
+.panel {
+  background: var(--azul-panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.panel-active {
+  border-color: var(--azul-accent);
+  box-shadow: 0 0 24px rgba(74, 158, 255, 0.15);
+}
+
+/* ─── Button Styles ───────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, var(--azul-accent), #3580d4);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: var(--azul-surface);
+  color: #c0d0e0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #243a5e;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Turn indicator ──────────────────────────────────────── */
+.turn-indicator {
+  position: relative;
+}
+
+.turn-indicator::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 14px;
+  border: 2px solid var(--azul-accent);
+  animation: pulse 2s infinite;
+}
+
+/* ─── Floor line slot ─────────────────────────────────────── */
+.floor-slot {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: rgba(255, 100, 100, 0.6);
+  font-weight: 600;
+}
+
+.floor-slot.filled {
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Pattern line slot ───────────────────────────────────── */
+.pattern-slot {
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pattern-slot.valid-target {
+  border-color: var(--azul-accent);
+  background: rgba(74, 158, 255, 0.1);
+}
+
+.pattern-slot.valid-target:hover {
+  background: rgba(74, 158, 255, 0.2);
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.3);
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--azul-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--azul-surface);
+  border-radius: 3px;
+}

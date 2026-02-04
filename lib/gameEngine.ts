@@ -438,7 +438,14 @@ function executeWallTiling(state: GameState): GameState {
         line.tiles = [];
         line.color = null;
       }
-      // Incomplete lines stay
+      // Clear incomplete lines too — discard all remaining tiles
+      if (line.tiles.length > 0) {
+        for (const tile of line.tiles) {
+          newState.discardLid.push(tile);
+        }
+        line.tiles = [];
+        line.color = null;
+      }
     }
 
     // Apply floor line penalties

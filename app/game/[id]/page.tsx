@@ -68,7 +68,7 @@ function Tile({
   seed = 0,
 }: {
   color: TileColor | "starter" | null;
-  size?: "normal" | "small" | "mini";
+  size?: "normal" | "small" | "mini" | "xs";
   onClick?: () => void;
   selected?: boolean;
   className?: string;
@@ -78,9 +78,10 @@ function Tile({
   if (!color) return null;
 
   const sizeClasses = {
-    normal: "w-8 h-8 sm:w-9 sm:h-9",
+    normal: "w-7 h-7 sm:w-8 sm:h-8",
     small: "w-6 h-6 sm:w-7 sm:h-7",
     mini: "w-5 h-5 sm:w-6 sm:h-6",
+    xs: "w-4 h-4",
   };
 
   // Generate subtle random rotation based on seed
@@ -93,7 +94,7 @@ function Tile({
   if (color === "starter") {
     return (
       <div
-        className={`${sizeClasses[size]} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-xs shadow-md flex-shrink-0 ${className}`}
+        className={`${sizeClasses[size]} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px] shadow-md flex-shrink-0 ${className}`}
         style={getMessyStyle()}
         onClick={onClick}
       >
@@ -350,11 +351,19 @@ function PatternLines({
   isCurrentPlayer: boolean;
   compact?: boolean;
 }) {
-  const slotSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
-  const tileSize = compact ? "mini" : "small";
+  const slotSize = compact ? "w-5 h-5" : "w-8 h-8";
+  const tileInnerSize = compact ? "w-4 h-4" : "w-7 h-7";
+
+  const colorStyles: Record<string, string> = {
+    blue: "from-blue-500 to-blue-700",
+    yellow: "from-yellow-400 to-yellow-600",
+    red: "from-red-500 to-red-700",
+    black: "from-gray-700 to-gray-900",
+    cyan: "from-teal-400 to-teal-600",
+  };
 
   return (
-    <div className="space-y-0.5 sm:space-y-1">
+    <div className="space-y-0.5">
       {patternLines.map((line, rowIndex) => {
         const isValid = validTargetLines.includes(rowIndex);
         const spaceLeft = line.size - line.tiles.length;
@@ -366,6 +375,7 @@ function PatternLines({
             {Array.from({ length: line.size }).map((_, slotIndex) => {
               const tileIndex = line.size - 1 - slotIndex;
               const hasTile = tileIndex < line.tiles.length;
+              const tileColor = hasTile ? line.tiles[tileIndex] : null;
               return (
                 <div
                   key={slotIndex}
@@ -376,12 +386,11 @@ function PatternLines({
                       : isValid
                         ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
                         : "border-dashed border-[#2a4a6e]"
-                  } flex items-center justify-center transition-all`}
+                  } flex items-center justify-center`}
                 >
-                  {hasTile && (
-                    <Tile 
-                      color={line.tiles[tileIndex]} 
-                      size={tileSize}
+                  {hasTile && tileColor && (
+                    <div 
+                      className={`${tileInnerSize} rounded bg-gradient-to-br ${colorStyles[tileColor]} shadow-md border border-white/20`}
                     />
                   )}
                 </div>
@@ -396,8 +405,8 @@ function PatternLines({
 
 // ─── Wall Display ───────────────────────────────────────────
 function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?: boolean }) {
-  const cellSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
-  const tileInnerSize = compact ? "w-4 h-4" : "w-6 h-6 sm:w-7 sm:h-7";
+  const cellSize = compact ? "w-5 h-5" : "w-8 h-8";
+  const tileInnerSize = compact ? "w-4 h-4" : "w-7 h-7";
 
   return (
     <div className="grid grid-cols-5 gap-0.5">
@@ -443,7 +452,16 @@ function FloorLine({
   isCurrentPlayer: boolean;
   compact?: boolean;
 }) {
-  const slotSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
+  const slotSize = compact ? "w-5 h-5" : "w-8 h-8";
+  const tileInnerSize = compact ? "w-4 h-4" : "w-7 h-7";
+
+  const colorStyles: Record<string, string> = {
+    blue: "from-blue-500 to-blue-700",
+    yellow: "from-yellow-400 to-yellow-600",
+    red: "from-red-500 to-red-700",
+    black: "from-gray-700 to-gray-900",
+    cyan: "from-teal-400 to-teal-600",
+  };
 
   return (
     <div className="flex gap-0.5 items-center">
@@ -453,7 +471,7 @@ function FloorLine({
           <div
             key={i}
             onClick={() => isCurrentPlayer && isValidTarget && onSelectFloor()}
-            className={`${slotSize} rounded border flex-shrink-0 flex items-center justify-center text-[8px] sm:text-[9px] font-semibold transition-all ${
+            className={`${slotSize} rounded border flex-shrink-0 flex items-center justify-center text-[8px] font-semibold ${
               tile
                 ? "border-white/20"
                 : isValidTarget
@@ -461,7 +479,17 @@ function FloorLine({
                   : "border-dashed border-[#2a4a6e] text-red-400/50"
             }`}
           >
-            {tile ? <Tile color={tile} size="mini" /> : FLOOR_PENALTIES[i]}
+            {tile ? (
+              tile === "starter" ? (
+                <div className={`${tileInnerSize} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px]`}>
+                  1
+                </div>
+              ) : (
+                <div className={`${tileInnerSize} rounded bg-gradient-to-br ${colorStyles[tile]} shadow-md border border-white/20`} />
+              )
+            ) : (
+              FLOOR_PENALTIES[i]
+            )}
           </div>
         );
       })}

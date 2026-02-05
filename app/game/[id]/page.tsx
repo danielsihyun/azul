@@ -546,12 +546,15 @@ function GameContent() {
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [validLines, setValidLines] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [hasJoined, setHasJoined] = useState(false);
+  const [connected, setConnected] = useState(false);
 
   // Connect to PartyKit
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "localhost:1999",
     room: roomCode,
+    onOpen() {
+      setConnected(true);
+    },
     onMessage(event) {
       const msg: ServerMessage = JSON.parse(event.data);
       if (msg.type === "state") {
@@ -566,13 +569,12 @@ function GameContent() {
     },
   });
 
-  // Join room on connect
+  // Join room when connected
   useEffect(() => {
-    if (socket && !hasJoined) {
+    if (connected && socket) {
       socket.send(JSON.stringify({ type: "join", playerName }));
-      setHasJoined(true);
     }
-  }, [socket, playerName, hasJoined]);
+  }, [connected, socket, playerName]);
 
   const handleStart = useCallback(() => {
     socket?.send(JSON.stringify({ type: "start" }));

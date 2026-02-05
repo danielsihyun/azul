@@ -370,20 +370,18 @@ function PatternLines({
                 <div
                   key={slotIndex}
                   onClick={() => isCurrentPlayer && isValid && onSelectLine(rowIndex)}
-                  className={`${slotSize} rounded border ${
+                  className={`${slotSize} rounded border flex-shrink-0 ${
                     hasTile
                       ? "border-transparent"
                       : isValid
                         ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
                         : "border-dashed border-[#2a4a6e]"
-                  } flex items-center justify-center transition-all overflow-visible`}
+                  } flex items-center justify-center transition-all`}
                 >
                   {hasTile && (
                     <Tile 
                       color={line.tiles[tileIndex]} 
                       size={tileSize}
-                      messy
-                      seed={rowIndex * 10 + slotIndex}
                     />
                   )}
                 </div>
@@ -399,6 +397,7 @@ function PatternLines({
 // ─── Wall Display ───────────────────────────────────────────
 function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?: boolean }) {
   const cellSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
+  const tileInnerSize = compact ? "w-4 h-4" : "w-6 h-6 sm:w-7 sm:h-7";
 
   return (
     <div className="grid grid-cols-5 gap-0.5">
@@ -406,25 +405,18 @@ function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?
         Array.from({ length: 5 }).map((_, col) => {
           const placed = wall[row][col];
           const expectedColor = WALL_PATTERN[row][col];
-          const seed = row * 5 + col;
-          const rotation = placed ? ((seed * 17) % 7) - 3 : 0;
 
           return (
             <div
               key={`${row}-${col}`}
-              className={`${cellSize} rounded-sm border transition-all flex items-center justify-center overflow-visible ${placed ? "border-white/30" : "border-white/5"}`}
-              style={
-                !placed
-                  ? { background: `${TILE_COLOR_HEX[expectedColor]}22` }
-                  : undefined
-              }
+              className={`${cellSize} rounded-sm border flex-shrink-0 flex items-center justify-center ${placed ? "border-white/30" : "border-white/5"}`}
+              style={!placed ? { background: `${TILE_COLOR_HEX[expectedColor]}22` } : undefined}
             >
               {placed && (
                 <div
-                  className={`${compact ? "w-4 h-4" : "w-6 h-6 sm:w-7 sm:h-7"} rounded-sm`}
+                  className={`${tileInnerSize} rounded-sm`}
                   style={{
                     background: `linear-gradient(135deg, ${TILE_COLOR_HEX[placed]}dd, ${TILE_COLOR_HEX[placed]})`,
-                    transform: `rotate(${rotation}deg)`,
                     border: '1px solid rgba(255,255,255,0.2)',
                   }}
                 />
@@ -461,7 +453,7 @@ function FloorLine({
           <div
             key={i}
             onClick={() => isCurrentPlayer && isValidTarget && onSelectFloor()}
-            className={`${slotSize} rounded border flex items-center justify-center text-[8px] sm:text-[9px] font-semibold transition-all overflow-visible ${
+            className={`${slotSize} rounded border flex-shrink-0 flex items-center justify-center text-[8px] sm:text-[9px] font-semibold transition-all ${
               tile
                 ? "border-white/20"
                 : isValidTarget
@@ -469,7 +461,7 @@ function FloorLine({
                   : "border-dashed border-[#2a4a6e] text-red-400/50"
             }`}
           >
-            {tile ? <Tile color={tile} size="mini" messy seed={i * 7} /> : FLOOR_PENALTIES[i]}
+            {tile ? <Tile color={tile} size="mini" /> : FLOOR_PENALTIES[i]}
           </div>
         );
       })}

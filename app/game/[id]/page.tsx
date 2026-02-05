@@ -64,12 +64,16 @@ function Tile({
   onClick,
   selected,
   className = "",
+  messy = false,
+  seed = 0,
 }: {
   color: TileColor | "starter" | null;
   size?: "normal" | "small" | "mini";
   onClick?: () => void;
   selected?: boolean;
   className?: string;
+  messy?: boolean;
+  seed?: number;
 }) {
   if (!color) return null;
 
@@ -79,10 +83,18 @@ function Tile({
     mini: "w-5 h-5 sm:w-6 sm:h-6",
   };
 
+  // Generate subtle random rotation based on seed
+  const getMessyStyle = () => {
+    if (!messy) return {};
+    const rotation = ((seed * 17) % 9) - 4; // -4 to 4 degrees
+    return { transform: `rotate(${rotation}deg)` };
+  };
+
   if (color === "starter") {
     return (
       <div
-        className={`${sizeClasses[size]} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-xs shadow-md ${className}`}
+        className={`${sizeClasses[size]} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-xs shadow-md flex-shrink-0 ${className}`}
+        style={getMessyStyle()}
         onClick={onClick}
       >
         1
@@ -100,7 +112,8 @@ function Tile({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded bg-gradient-to-br ${colorStyles[color]} shadow-md border border-white/20 ${selected ? "ring-2 ring-white" : ""} ${className}`}
+      className={`${sizeClasses[size]} rounded bg-gradient-to-br ${colorStyles[color]} shadow-md border border-white/20 flex-shrink-0 ${selected ? "ring-2 ring-white" : ""} ${className}`}
+      style={getMessyStyle()}
       onClick={onClick}
     />
   );
@@ -135,6 +148,8 @@ function FactoryDisplay({
           key={i}
           color={color}
           size="mini"
+          messy
+          seed={factory.id * 10 + i}
           onClick={() => isInteractive && onSelectColor(factory.id, color)}
           className={isInteractive ? "cursor-pointer hover:scale-110 transition-transform" : ""}
         />
@@ -176,20 +191,18 @@ function CenterPool({
   const handleClick = (color: TileColor) => {
     if (!isInteractive) return;
     
-    // If already expanded, select it
     if (expandedColor === color) {
       onSelectColor(color);
       setExpandedColor(null);
     } else {
-      // Expand this stack
       setExpandedColor(color);
     }
   };
 
   return (
-    <div className="min-w-24 min-h-24 sm:min-w-32 sm:min-h-32 rounded-full bg-[#0c1a2e] border-2 border-[#2a4a6e] flex flex-wrap items-center justify-center gap-2 p-3 sm:p-4 relative">
-      {hasStartingMarker && <Tile color="starter" size="mini" />}
-      {Object.entries(grouped).map(([color, count]) => {
+    <div className="min-w-24 min-h-24 sm:min-w-32 sm:min-h-32 rounded-full bg-[#0c1a2e] border-2 border-[#2a4a6e] flex flex-wrap items-center justify-center gap-3 p-3 sm:p-4 relative">
+      {hasStartingMarker && <Tile color="starter" size="mini" messy seed={99} />}
+      {Object.entries(grouped).map(([color, count], groupIndex) => {
         const isExpanded = expandedColor === color;
         const tileColor = color as TileColor;
         
@@ -201,38 +214,59 @@ function CenterPool({
             onMouseLeave={() => setExpandedColor(null)}
           >
             {isExpanded ? (
-              // Expanded view - show all tiles
-              <button
-                onClick={() => handleClick(tileColor)}
-                className={`flex gap-0.5 p-1 rounded-lg bg-[rgba(74,158,255,0.15)] border border-[#4a9eff]/30 transition-all ${isInteractive ? "cursor-pointer hover:bg-[rgba(74,158,255,0.25)]" : ""}`}
-              >
-                {Array.from({ length: count! }).map((_, i) => (
-                  <Tile key={i} color={tileColor} size="mini" />
-                ))}
-              </button>
-            ) : (
-              // Stacked view
+              // Expanded view - stack vertically upward
               <button
                 onClick={() => handleClick(tileColor)}
                 className={`relative transition-all ${isInteractive ? "cursor-pointer" : ""}`}
                 style={{ 
-                  width: `${20 + Math.min(count! - 1, 3) * 4}px`,
-                  height: `${20 + Math.min(count! - 1, 3) * 4}px`,
+                  width: '24px',
+                  height: `${24 + (count! - 1) * 8}px`,
+                }}
+              >
+                {Array.from({ length: count! }).map((_, i) => {
+                  const seed = color.charCodeAt(0) + i;
+                  const rotation = ((seed * 13) % 7) - 3;
+                  const offsetX = ((seed * 7) % 5) - 2;
+                  
+                  return (
+                    <div
+                      key={i}
+                      className="absolute left-0 transition-all duration-200"
+                      style={{
+                        bottom: `${i * 8}px`,
+                        transform: `translateX(${offsetX}px) rotate(${rotation}deg)`,
+                        zIndex: count! - i,
+                      }}
+                    >
+                      <Tile color={tileColor} size="mini" />
+                    </div>
+                  );
+                })}
+              </button>
+            ) : (
+              // Stacked messy view
+              <button
+                onClick={() => handleClick(tileColor)}
+                className={`relative transition-all ${isInteractive ? "cursor-pointer hover:scale-105" : ""}`}
+                style={{ 
+                  width: '28px',
+                  height: '28px',
                 }}
               >
                 {Array.from({ length: Math.min(count!, 4) }).map((_, i) => {
-                  // Create random-ish but consistent offsets for messy stack
-                  const seed = color.charCodeAt(0) + i;
-                  const offsetX = ((seed * 7) % 5) - 2;
-                  const offsetY = ((seed * 11) % 5) - 2;
-                  const rotation = ((seed * 13) % 15) - 7;
+                  const seed = color.charCodeAt(0) + i + groupIndex * 5;
+                  const offsetX = ((seed * 7) % 7) - 3;
+                  const offsetY = ((seed * 11) % 7) - 3;
+                  const rotation = ((seed * 13) % 13) - 6;
                   
                   return (
                     <div
                       key={i}
                       className="absolute transition-transform"
                       style={{
-                        transform: `translate(${offsetX + i * 3}px, ${offsetY + i * 3}px) rotate(${rotation}deg)`,
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(-50%, -50%) translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`,
                         zIndex: i,
                       }}
                     >
@@ -240,9 +274,8 @@ function CenterPool({
                     </div>
                   );
                 })}
-                {/* Count badge for stacks > 4 */}
-                {count! > 4 && (
-                  <div className="absolute -top-1 -right-1 bg-[#4a9eff] text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center z-10">
+                {count! > 1 && (
+                  <div className="absolute -top-1.5 -right-1.5 bg-[#4a9eff] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center z-10 shadow-md">
                     {count}
                   </div>
                 )}
@@ -317,7 +350,8 @@ function PatternLines({
   isCurrentPlayer: boolean;
   compact?: boolean;
 }) {
-  const slotSize = compact ? "w-4 h-4 sm:w-5 sm:h-5" : "w-6 h-6 sm:w-7 sm:h-7";
+  const slotSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
+  const tileSize = compact ? "mini" : "small";
 
   return (
     <div className="space-y-0.5 sm:space-y-1">
@@ -342,9 +376,16 @@ function PatternLines({
                       : isValid
                         ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
                         : "border-dashed border-[#2a4a6e]"
-                  } flex items-center justify-center transition-all`}
+                  } flex items-center justify-center transition-all overflow-visible`}
                 >
-                  {hasTile && <Tile color={line.tiles[tileIndex]} size="mini" />}
+                  {hasTile && (
+                    <Tile 
+                      color={line.tiles[tileIndex]} 
+                      size={tileSize}
+                      messy
+                      seed={rowIndex * 10 + slotIndex}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -357,7 +398,7 @@ function PatternLines({
 
 // ─── Wall Display ───────────────────────────────────────────
 function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?: boolean }) {
-  const cellSize = compact ? "w-4 h-4 sm:w-5 sm:h-5" : "w-6 h-6 sm:w-7 sm:h-7";
+  const cellSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
 
   return (
     <div className="grid grid-cols-5 gap-0.5">
@@ -365,17 +406,30 @@ function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?
         Array.from({ length: 5 }).map((_, col) => {
           const placed = wall[row][col];
           const expectedColor = WALL_PATTERN[row][col];
+          const seed = row * 5 + col;
+          const rotation = placed ? ((seed * 17) % 7) - 3 : 0;
 
           return (
             <div
               key={`${row}-${col}`}
-              className={`${cellSize} rounded-sm border transition-all ${placed ? "border-white/30" : "border-white/5"}`}
+              className={`${cellSize} rounded-sm border transition-all flex items-center justify-center overflow-visible ${placed ? "border-white/30" : "border-white/5"}`}
               style={
-                placed
-                  ? { background: `linear-gradient(135deg, ${TILE_COLOR_HEX[placed]}dd, ${TILE_COLOR_HEX[placed]})` }
-                  : { background: `${TILE_COLOR_HEX[expectedColor]}33` }
+                !placed
+                  ? { background: `${TILE_COLOR_HEX[expectedColor]}22` }
+                  : undefined
               }
-            />
+            >
+              {placed && (
+                <div
+                  className={`${compact ? "w-4 h-4" : "w-6 h-6 sm:w-7 sm:h-7"} rounded-sm`}
+                  style={{
+                    background: `linear-gradient(135deg, ${TILE_COLOR_HEX[placed]}dd, ${TILE_COLOR_HEX[placed]})`,
+                    transform: `rotate(${rotation}deg)`,
+                    border: '1px solid rgba(255,255,255,0.2)',
+                  }}
+                />
+              )}
+            </div>
           );
         })
       )}
@@ -397,7 +451,7 @@ function FloorLine({
   isCurrentPlayer: boolean;
   compact?: boolean;
 }) {
-  const slotSize = compact ? "w-4 h-4 sm:w-5 sm:h-5" : "w-6 h-6 sm:w-7 sm:h-7";
+  const slotSize = compact ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8";
 
   return (
     <div className="flex gap-0.5 items-center">
@@ -407,7 +461,7 @@ function FloorLine({
           <div
             key={i}
             onClick={() => isCurrentPlayer && isValidTarget && onSelectFloor()}
-            className={`${slotSize} rounded border flex items-center justify-center text-[8px] sm:text-[9px] font-semibold transition-all ${
+            className={`${slotSize} rounded border flex items-center justify-center text-[8px] sm:text-[9px] font-semibold transition-all overflow-visible ${
               tile
                 ? "border-white/20"
                 : isValidTarget
@@ -415,7 +469,7 @@ function FloorLine({
                   : "border-dashed border-[#2a4a6e] text-red-400/50"
             }`}
           >
-            {tile ? <Tile color={tile} size="mini" /> : FLOOR_PENALTIES[i]}
+            {tile ? <Tile color={tile} size="mini" messy seed={i * 7} /> : FLOOR_PENALTIES[i]}
           </div>
         );
       })}

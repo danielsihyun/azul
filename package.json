@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
+    "dev:party": "partykit dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:party\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:party": "partykit deploy"
   },
   "dependencies": {
     "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "partysocket": "^1.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -22,6 +26,8 @@
     "typescript": "^5.4.0",
     "tailwindcss": "^3.4.0",
     "postcss": "^8.4.0",
-    "autoprefixer": "^10.4.0"
+    "autoprefixer": "^10.4.0",
+    "partykit": "^0.0.111",
+    "concurrently": "^8.2.2"
   }
 }

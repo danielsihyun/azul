@@ -155,6 +155,8 @@ function CenterPool({
   onSelectColor: (color: TileColor) => void;
   isInteractive: boolean;
 }) {
+  const [expandedColor, setExpandedColor] = useState<TileColor | null>(null);
+
   const grouped = useMemo(() => {
     const groups: Partial<Record<TileColor, number>> = {};
     for (const tile of tiles) {
@@ -171,19 +173,84 @@ function CenterPool({
     );
   }
 
+  const handleClick = (color: TileColor) => {
+    if (!isInteractive) return;
+    
+    // If already expanded, select it
+    if (expandedColor === color) {
+      onSelectColor(color);
+      setExpandedColor(null);
+    } else {
+      // Expand this stack
+      setExpandedColor(color);
+    }
+  };
+
   return (
-    <div className="min-w-20 min-h-20 sm:min-w-28 sm:min-h-28 max-w-32 rounded-full bg-[#0c1a2e] border-2 border-[#2a4a6e] flex flex-wrap items-center justify-center gap-1 p-2 sm:p-3">
+    <div className="min-w-24 min-h-24 sm:min-w-32 sm:min-h-32 rounded-full bg-[#0c1a2e] border-2 border-[#2a4a6e] flex flex-wrap items-center justify-center gap-2 p-3 sm:p-4 relative">
       {hasStartingMarker && <Tile color="starter" size="mini" />}
-      {Object.entries(grouped).map(([color, count]) => (
-        <button
-          key={color}
-          onClick={() => isInteractive && onSelectColor(color as TileColor)}
-          className={`flex items-center gap-0.5 p-1 rounded transition-all ${isInteractive ? "hover:bg-[rgba(255,255,255,0.1)]" : ""}`}
-        >
-          <Tile color={color as TileColor} size="mini" />
-          {count! > 1 && <span className="text-[10px] text-[#8899aa] font-medium">{count}</span>}
-        </button>
-      ))}
+      {Object.entries(grouped).map(([color, count]) => {
+        const isExpanded = expandedColor === color;
+        const tileColor = color as TileColor;
+        
+        return (
+          <div
+            key={color}
+            className="relative"
+            onMouseEnter={() => !expandedColor && setExpandedColor(tileColor)}
+            onMouseLeave={() => setExpandedColor(null)}
+          >
+            {isExpanded ? (
+              // Expanded view - show all tiles
+              <button
+                onClick={() => handleClick(tileColor)}
+                className={`flex gap-0.5 p-1 rounded-lg bg-[rgba(74,158,255,0.15)] border border-[#4a9eff]/30 transition-all ${isInteractive ? "cursor-pointer hover:bg-[rgba(74,158,255,0.25)]" : ""}`}
+              >
+                {Array.from({ length: count! }).map((_, i) => (
+                  <Tile key={i} color={tileColor} size="mini" />
+                ))}
+              </button>
+            ) : (
+              // Stacked view
+              <button
+                onClick={() => handleClick(tileColor)}
+                className={`relative transition-all ${isInteractive ? "cursor-pointer" : ""}`}
+                style={{ 
+                  width: `${20 + Math.min(count! - 1, 3) * 4}px`,
+                  height: `${20 + Math.min(count! - 1, 3) * 4}px`,
+                }}
+              >
+                {Array.from({ length: Math.min(count!, 4) }).map((_, i) => {
+                  // Create random-ish but consistent offsets for messy stack
+                  const seed = color.charCodeAt(0) + i;
+                  const offsetX = ((seed * 7) % 5) - 2;
+                  const offsetY = ((seed * 11) % 5) - 2;
+                  const rotation = ((seed * 13) % 15) - 7;
+                  
+                  return (
+                    <div
+                      key={i}
+                      className="absolute transition-transform"
+                      style={{
+                        transform: `translate(${offsetX + i * 3}px, ${offsetY + i * 3}px) rotate(${rotation}deg)`,
+                        zIndex: i,
+                      }}
+                    >
+                      <Tile color={tileColor} size="mini" />
+                    </div>
+                  );
+                })}
+                {/* Count badge for stacks > 4 */}
+                {count! > 4 && (
+                  <div className="absolute -top-1 -right-1 bg-[#4a9eff] text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center z-10">
+                    {count}
+                  </div>
+                )}
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

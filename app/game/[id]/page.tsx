@@ -351,8 +351,7 @@ function PatternLines({
   isCurrentPlayer: boolean;
   compact?: boolean;
 }) {
-  const slotSize = compact ? "w-5 h-5" : "w-8 h-8";
-  const tileInnerSize = compact ? "w-4 h-4" : "w-7 h-7";
+  const size = compact ? "w-5 h-5" : "w-8 h-8";
 
   const colorStyles: Record<string, string> = {
     blue: "from-blue-500 to-blue-700",
@@ -376,24 +375,26 @@ function PatternLines({
               const tileIndex = line.size - 1 - slotIndex;
               const hasTile = tileIndex < line.tiles.length;
               const tileColor = hasTile ? line.tiles[tileIndex] : null;
+              
+              if (hasTile && tileColor) {
+                return (
+                  <div 
+                    key={slotIndex}
+                    className={`${size} rounded bg-gradient-to-br ${colorStyles[tileColor]} shadow-md border border-white/20 flex-shrink-0`}
+                  />
+                );
+              }
+              
               return (
                 <div
                   key={slotIndex}
                   onClick={() => isCurrentPlayer && isValid && onSelectLine(rowIndex)}
-                  className={`${slotSize} rounded border flex-shrink-0 ${
-                    hasTile
-                      ? "border-transparent"
-                      : isValid
-                        ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
-                        : "border-dashed border-[#2a4a6e]"
-                  } flex items-center justify-center`}
-                >
-                  {hasTile && tileColor && (
-                    <div 
-                      className={`${tileInnerSize} rounded bg-gradient-to-br ${colorStyles[tileColor]} shadow-md border border-white/20`}
-                    />
-                  )}
-                </div>
+                  className={`${size} rounded border flex-shrink-0 ${
+                    isValid
+                      ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
+                      : "border-dashed border-[#2a4a6e]"
+                  }`}
+                />
               );
             })}
           </div>
@@ -405,8 +406,7 @@ function PatternLines({
 
 // ─── Wall Display ───────────────────────────────────────────
 function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?: boolean }) {
-  const cellSize = compact ? "w-5 h-5" : "w-8 h-8";
-  const tileInnerSize = compact ? "w-4 h-4" : "w-7 h-7";
+  const size = compact ? "w-5 h-5" : "w-8 h-8";
 
   return (
     <div className="grid grid-cols-5 gap-0.5">
@@ -418,19 +418,14 @@ function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?
           return (
             <div
               key={`${row}-${col}`}
-              className={`${cellSize} rounded-sm border flex-shrink-0 flex items-center justify-center ${placed ? "border-white/30" : "border-white/5"}`}
-              style={!placed ? { background: `${TILE_COLOR_HEX[expectedColor]}22` } : undefined}
-            >
-              {placed && (
-                <div
-                  className={`${tileInnerSize} rounded-sm`}
-                  style={{
-                    background: `linear-gradient(135deg, ${TILE_COLOR_HEX[placed]}dd, ${TILE_COLOR_HEX[placed]})`,
-                    border: '1px solid rgba(255,255,255,0.2)',
-                  }}
-                />
-              )}
-            </div>
+              className={`${size} rounded-sm flex-shrink-0`}
+              style={{
+                background: placed
+                  ? `linear-gradient(135deg, ${TILE_COLOR_HEX[placed]}dd, ${TILE_COLOR_HEX[placed]})`
+                  : `${TILE_COLOR_HEX[expectedColor]}22`,
+                border: placed ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.05)',
+              }}
+            />
           );
         })
       )}
@@ -452,8 +447,7 @@ function FloorLine({
   isCurrentPlayer: boolean;
   compact?: boolean;
 }) {
-  const slotSize = compact ? "w-5 h-5" : "w-8 h-8";
-  const tileInnerSize = compact ? "w-4 h-4" : "w-7 h-7";
+  const size = compact ? "w-5 h-5" : "w-8 h-8";
 
   const colorStyles: Record<string, string> = {
     blue: "from-blue-500 to-blue-700",
@@ -467,29 +461,37 @@ function FloorLine({
     <div className="flex gap-0.5 items-center">
       {Array.from({ length: 7 }).map((_, i) => {
         const tile = floorLine[i] || null;
+        
+        if (tile) {
+          if (tile === "starter") {
+            return (
+              <div 
+                key={i}
+                className={`${size} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px] shadow-md flex-shrink-0`}
+              >
+                1
+              </div>
+            );
+          }
+          return (
+            <div 
+              key={i}
+              className={`${size} rounded bg-gradient-to-br ${colorStyles[tile]} shadow-md border border-white/20 flex-shrink-0`}
+            />
+          );
+        }
+        
         return (
           <div
             key={i}
             onClick={() => isCurrentPlayer && isValidTarget && onSelectFloor()}
-            className={`${slotSize} rounded border flex-shrink-0 flex items-center justify-center text-[8px] font-semibold ${
-              tile
-                ? "border-white/20"
-                : isValidTarget
-                  ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
-                  : "border-dashed border-[#2a4a6e] text-red-400/50"
+            className={`${size} rounded border flex-shrink-0 flex items-center justify-center text-[8px] font-semibold ${
+              isValidTarget
+                ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
+                : "border-dashed border-[#2a4a6e] text-red-400/50"
             }`}
           >
-            {tile ? (
-              tile === "starter" ? (
-                <div className={`${tileInnerSize} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px]`}>
-                  1
-                </div>
-              ) : (
-                <div className={`${tileInnerSize} rounded bg-gradient-to-br ${colorStyles[tile]} shadow-md border border-white/20`} />
-              )
-            ) : (
-              FLOOR_PENALTIES[i]
-            )}
+            {FLOOR_PENALTIES[i]}
           </div>
         );
       })}

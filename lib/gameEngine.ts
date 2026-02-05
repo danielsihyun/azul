@@ -581,5 +581,3 @@ function executeEndgame(state: GameState): GameState {
 
   return newState;
 }
-
-

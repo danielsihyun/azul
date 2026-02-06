@@ -136,9 +136,7 @@ function FactoryDisplay({
 
   if (factory.tiles.length === 0) {
     return (
-      <div className={`${size} rounded-full bg-[#1a2d4d] border-2 border-[#2a4a6e] opacity-40 flex items-center justify-center`}>
-        <span className="text-[10px] text-[#556677]">Empty</span>
-      </div>
+      <div className={`${size} rounded-full bg-[#1a2d4d] border-2 border-[#2a4a6e] opacity-40`} />
     );
   }
 
@@ -188,9 +186,7 @@ function CenterPool({
 
   if (tiles.length === 0 && !hasStartingMarker) {
     return (
-      <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-[#0c1a2e] border-2 border-dashed border-[#2a4a6e] flex items-center justify-center">
-        <span className="text-[10px] text-[#445566]">Center</span>
-      </div>
+      <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-[#0c1a2e] border-2 border-dashed border-[#2a4a6e]" />
     );
   }
 
@@ -572,7 +568,7 @@ function PlayerBoard({
           <div className="w-3 h-3 rounded-full" style={{ background: PLAYER_COLORS[playerIndex] }} />
           <span className="font-semibold text-sm sm:text-base">{player.name} {isYou && "(You)"}</span>
           {isCurrentTurn && <span className="text-[9px] bg-[#4a9eff] text-white px-1.5 py-0.5 rounded-full">YOUR TURN</span>}
-          {player.hasStartingMarker && <span className="text-[9px] bg-[#555] text-white px-1.5 py-0.5 rounded-full">1st Next Turn</span>}
+          {player.hasStartingMarker && <span className="text-[9px] bg-[#555] text-white px-1.5 py-0.5 rounded-full">1ST</span>}
         </div>
         <span className="text-xl sm:text-2xl font-bold text-[#c9a84c]">{player.score}</span>
       </div>
@@ -653,17 +649,12 @@ function LobbyView({
 }
 
 // ─── Pending Tiles Bar ──────────────────────────────────────
-function PendingTilesBar({ tiles, color, onSendAllToFloor }: { tiles: TileColor[]; color: TileColor; onSendAllToFloor: () => void }) {
+function PendingTilesBar({ tiles, color }: { tiles: TileColor[]; color: TileColor }) {
   return (
     <div className="bg-[rgba(74,158,255,0.15)] border border-[#4a9eff] rounded-lg px-3 py-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-[#8899aa]">Place {tiles.length}:</span>
-          <div className="flex gap-1">{tiles.map((_, i) => <Tile key={i} color={color} size="mini" />)}</div>
-        </div>
-        <button onClick={onSendAllToFloor} className="text-[10px] text-red-400 hover:text-red-300 px-2 py-1 bg-red-500/10 rounded">
-          All to Floor
-        </button>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-[#8899aa]">Place {tiles.length}:</span>
+        <div className="flex gap-1">{tiles.map((_, i) => <Tile key={i} color={color} size="mini" />)}</div>
       </div>
     </div>
   );
@@ -783,10 +774,6 @@ function GameWithSocket({ roomCode, playerName, partyHost }: { roomCode: string;
     handleSelectLine(-1);
   }, [handleSelectLine]);
 
-  const handleSendAllToFloor = useCallback(() => {
-    handleSelectLine(-1);
-  }, [handleSelectLine]);
-
   if (!state) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0c1a2e] gap-2">
@@ -875,7 +862,7 @@ function GameWithSocket({ roomCode, playerName, partyHost }: { roomCode: string;
         {/* Pending tiles bar - above your board */}
         {isPlacingTiles && state.pendingColor && (
           <div className="flex-shrink-0">
-            <PendingTilesBar tiles={state.pendingTiles} color={state.pendingColor} onSendAllToFloor={handleSendAllToFloor} />
+            <PendingTilesBar tiles={state.pendingTiles} color={state.pendingColor} />
           </div>
         )}
 

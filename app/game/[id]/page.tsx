@@ -94,7 +94,7 @@ function Tile({
   if (color === "starter") {
     return (
       <div
-        className={`${sizeClasses[size]} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px] shadow-md flex-shrink-0 ${className}`}
+        className={`${sizeClasses[size]} rounded-sm bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px] shadow-md flex-shrink-0 ${className}`}
         style={getMessyStyle()}
         onClick={onClick}
       >
@@ -113,7 +113,7 @@ function Tile({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded bg-gradient-to-br ${colorStyles[color]} shadow-md border border-white/20 flex-shrink-0 ${selected ? "ring-2 ring-white" : ""} ${className}`}
+      className={`${sizeClasses[size]} rounded-sm bg-gradient-to-br ${colorStyles[color]} shadow-md border border-white/20 flex-shrink-0 ${selected ? "ring-2 ring-white" : ""} ${className}`}
       style={getMessyStyle()}
       onClick={onClick}
     />
@@ -389,7 +389,7 @@ function PatternLines({
                 return (
                   <div 
                     key={slotIndex}
-                    className={`${size} rounded bg-gradient-to-br ${colorStyles[tileColor]} shadow-md border border-white/20 flex-shrink-0`}
+                    className={`${size} rounded-sm bg-gradient-to-br ${colorStyles[tileColor]} shadow-md border border-white/20 flex-shrink-0`}
                   />
                 );
               }
@@ -398,7 +398,7 @@ function PatternLines({
                 <div
                   key={slotIndex}
                   onClick={() => isCurrentPlayer && isValid && onSelectLine(rowIndex)}
-                  className={`${size} rounded border flex-shrink-0 ${
+                  className={`${size} rounded-sm border flex-shrink-0 ${
                     isValid
                       ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
                       : "border-dashed border-[#2a4a6e]"
@@ -491,7 +491,7 @@ function FloorLine({
             return (
               <div 
                 key={i}
-                className={`${size} rounded bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px] shadow-md flex-shrink-0`}
+                className={`${size} rounded-sm bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center font-bold text-gray-800 text-[8px] shadow-md flex-shrink-0`}
               >
                 1
               </div>
@@ -500,7 +500,7 @@ function FloorLine({
           return (
             <div 
               key={i}
-              className={`${size} rounded bg-gradient-to-br ${colorStyles[tile]} shadow-md border border-white/20 flex-shrink-0`}
+              className={`${size} rounded-sm bg-gradient-to-br ${colorStyles[tile]} shadow-md border border-white/20 flex-shrink-0`}
             />
           );
         }
@@ -509,7 +509,7 @@ function FloorLine({
           <div
             key={i}
             onClick={() => isCurrentPlayer && isValidTarget && onSelectFloor()}
-            className={`${size} rounded border flex-shrink-0 flex items-center justify-center text-[8px] font-semibold ${
+            className={`${size} rounded-sm border flex-shrink-0 flex items-center justify-center text-[8px] font-semibold ${
               isValidTarget
                 ? "border-[#4a9eff] bg-[rgba(74,158,255,0.15)] cursor-pointer hover:bg-[rgba(74,158,255,0.3)]"
                 : "border-dashed border-[#2a4a6e] text-red-400/50"

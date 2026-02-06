@@ -417,6 +417,14 @@ function PatternLines({
 function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?: boolean }) {
   const size = compact ? "w-5 h-5" : "w-8 h-8";
 
+  const colorStyles: Record<string, string> = {
+    blue: "from-blue-500 to-blue-700",
+    yellow: "from-yellow-400 to-yellow-600",
+    red: "from-red-500 to-red-700",
+    black: "from-gray-500 to-gray-700",
+    cyan: "from-teal-400 to-teal-600",
+  };
+
   return (
     <div className="grid grid-cols-5 gap-0.5">
       {Array.from({ length: 5 }).map((_, row) =>
@@ -424,15 +432,22 @@ function WallDisplay({ wall, compact }: { wall: (TileColor | null)[][]; compact?
           const placed = wall[row][col];
           const expectedColor = WALL_PATTERN[row][col];
 
+          if (placed) {
+            return (
+              <div
+                key={`${row}-${col}`}
+                className={`${size} rounded-sm flex-shrink-0 bg-gradient-to-br ${colorStyles[placed]} border border-white/30 shadow-md`}
+              />
+            );
+          }
+
           return (
             <div
               key={`${row}-${col}`}
               className={`${size} rounded-sm flex-shrink-0`}
               style={{
-                background: placed
-                  ? `linear-gradient(135deg, ${TILE_COLOR_HEX[placed]}dd, ${TILE_COLOR_HEX[placed]})`
-                  : `${TILE_COLOR_HEX[expectedColor]}22`,
-                border: placed ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.05)',
+                background: `${TILE_COLOR_HEX[expectedColor]}44`,
+                border: '1px solid rgba(255,255,255,0.1)',
               }}
             />
           );

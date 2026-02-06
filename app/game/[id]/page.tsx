@@ -694,15 +694,35 @@ function GameContent() {
   const roomCode = params.id as string;
   const playerName = searchParams.get("name") || "Player";
 
+  const [partyHost, setPartyHost] = useState<string | null>(null);
+
+  // Set host on client side
+  useEffect(() => {
+    setPartyHost(`${window.location.hostname}:1999`);
+  }, []);
+
+  // Show loading until we have the host
+  if (!partyHost) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0c1a2e]">
+        <div className="text-[#556677]">Loading...</div>
+      </div>
+    );
+  }
+
+  return <GameWithSocket roomCode={roomCode} playerName={playerName} partyHost={partyHost} />;
+}
+
+// Separate component that uses the socket
+function GameWithSocket({ roomCode, playerName, partyHost }: { roomCode: string; playerName: string; partyHost: string }) {
   const [state, setState] = useState<RoomState | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [validLines, setValidLines] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
 
-  // Connect to PartyKit
   const socket = usePartySocket({
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "localhost:1999",
+    host: partyHost,
     room: roomCode,
     onOpen() {
       setConnected(true);
@@ -754,8 +774,9 @@ function GameContent() {
 
   if (!state) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0c1a2e]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0c1a2e] gap-2">
         <div className="text-[#556677]">Connecting to room {roomCode}...</div>
+        <div className="text-[#445566] text-xs">Host: {partyHost}</div>
       </div>
     );
   }

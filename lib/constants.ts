@@ -65,7 +65,7 @@ export const TILE_COLOR_HEX: Record<TileColor, string> = {
   [TileColor.Blue]: "#1a6fb0",
   [TileColor.Yellow]: "#e8a838",
   [TileColor.Red]: "#c43a3a",
-  [TileColor.Black]: "#2d2d2d",
+  [TileColor.Black]: "#4a4a4a",
   [TileColor.Cyan]: "#3ab8b0",
 };
 

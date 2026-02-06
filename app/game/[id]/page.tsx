@@ -107,7 +107,7 @@ function Tile({
     blue: "from-blue-500 to-blue-700",
     yellow: "from-yellow-400 to-yellow-600",
     red: "from-red-500 to-red-700",
-    black: "from-gray-700 to-gray-900",
+    black: "from-gray-500 to-gray-700",
     cyan: "from-teal-400 to-teal-600",
   };
 
@@ -366,7 +366,7 @@ function PatternLines({
     blue: "from-blue-500 to-blue-700",
     yellow: "from-yellow-400 to-yellow-600",
     red: "from-red-500 to-red-700",
-    black: "from-gray-700 to-gray-900",
+    black: "from-gray-500 to-gray-700",
     cyan: "from-teal-400 to-teal-600",
   };
 
@@ -462,7 +462,7 @@ function FloorLine({
     blue: "from-blue-500 to-blue-700",
     yellow: "from-yellow-400 to-yellow-600",
     red: "from-red-500 to-red-700",
-    black: "from-gray-700 to-gray-900",
+    black: "from-gray-500 to-gray-700",
     cyan: "from-teal-400 to-teal-600",
   };
 

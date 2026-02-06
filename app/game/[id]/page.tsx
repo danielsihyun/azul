@@ -144,17 +144,22 @@ function FactoryDisplay({
 
   return (
     <div className={`${size} rounded-full bg-gradient-to-br from-[#1e3456] to-[#152845] border-2 border-[#2a4a6e] grid grid-cols-2 place-items-center p-2`}>
-      {factory.tiles.map((color, i) => (
-        <Tile
-          key={i}
-          color={color}
-          size="mini"
-          messy
-          seed={factory.id * 10 + i}
-          onClick={() => isInteractive && onSelectColor(factory.id, color)}
-          className={isInteractive ? "cursor-pointer hover:scale-110 transition-transform" : ""}
-        />
-      ))}
+      {factory.tiles.map((color, i) => {
+        // Use color charCode + factory id + position for varied randomness
+        const colorCode = color.charCodeAt(0) + color.charCodeAt(1);
+        const seed = (factory.id * 73 + i * 31 + colorCode * 17) % 1000;
+        return (
+          <Tile
+            key={i}
+            color={color}
+            size="mini"
+            messy
+            seed={seed}
+            onClick={() => isInteractive && onSelectColor(factory.id, color)}
+            className={isInteractive ? "cursor-pointer hover:scale-110 transition-transform" : ""}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -200,12 +205,16 @@ function CenterPool({
     }
   };
 
+  // Use total tile count to add variety when tiles change
+  const totalTiles = tiles.length;
+
   return (
     <div className="min-w-24 min-h-24 sm:min-w-32 sm:min-h-32 rounded-full bg-[#0c1a2e] border-2 border-[#2a4a6e] flex flex-wrap items-center justify-center gap-3 p-3 sm:p-4 relative">
-      {hasStartingMarker && <Tile color="starter" size="mini" messy seed={99} />}
+      {hasStartingMarker && <Tile color="starter" size="mini" messy seed={totalTiles * 13 + 99} />}
       {Object.entries(grouped).map(([color, count], groupIndex) => {
         const isExpanded = expandedColor === color;
         const tileColor = color as TileColor;
+        const colorCode = color.charCodeAt(0) + color.charCodeAt(1);
         
         return (
           <div
@@ -225,7 +234,7 @@ function CenterPool({
                 }}
               >
                 {Array.from({ length: count! }).map((_, i) => {
-                  const seed = color.charCodeAt(0) + i;
+                  const seed = (colorCode * 31 + i * 17 + totalTiles * 7) % 1000;
                   const rotation = ((seed * 13) % 7) - 3;
                   const offsetX = ((seed * 7) % 5) - 2;
                   
@@ -255,7 +264,7 @@ function CenterPool({
                 }}
               >
                 {Array.from({ length: Math.min(count!, 4) }).map((_, i) => {
-                  const seed = color.charCodeAt(0) + i + groupIndex * 5;
+                  const seed = (colorCode * 73 + i * 31 + groupIndex * 53 + totalTiles * 11) % 1000;
                   const offsetX = ((seed * 7) % 7) - 3;
                   const offsetY = ((seed * 11) % 7) - 3;
                   const rotation = ((seed * 13) % 13) - 6;

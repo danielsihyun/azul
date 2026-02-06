@@ -572,7 +572,7 @@ function PlayerBoard({
           <div className="w-3 h-3 rounded-full" style={{ background: PLAYER_COLORS[playerIndex] }} />
           <span className="font-semibold text-sm sm:text-base">{player.name} {isYou && "(You)"}</span>
           {isCurrentTurn && <span className="text-[9px] bg-[#4a9eff] text-white px-1.5 py-0.5 rounded-full">YOUR TURN</span>}
-          {player.hasStartingMarker && <span className="text-[9px] bg-[#555] text-white px-1.5 py-0.5 rounded-full">1ST</span>}
+          {player.hasStartingMarker && <span className="text-[9px] bg-[#555] text-white px-1.5 py-0.5 rounded-full">1st Next Turn</span>}
         </div>
         <span className="text-xl sm:text-2xl font-bold text-[#c9a84c]">{player.score}</span>
       </div>
@@ -839,15 +839,6 @@ function GameWithSocket({ roomCode, playerName, partyHost }: { roomCode: string;
         </div>
       )}
 
-      {/* Pending tiles */}
-      {isPlacingTiles && state.pendingColor && (
-        <div className="flex-shrink-0 px-3 py-2">
-          <div className="max-w-4xl mx-auto">
-            <PendingTilesBar tiles={state.pendingTiles} color={state.pendingColor} onSendAllToFloor={handleSendAllToFloor} />
-          </div>
-        </div>
-      )}
-
       {/* Main game */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-2 py-2 gap-2 overflow-y-auto">
         {/* Opponents */}
@@ -880,6 +871,13 @@ function GameWithSocket({ roomCode, playerName, partyHost }: { roomCode: string;
             isInteractive={canSelectTiles}
           />
         </section>
+
+        {/* Pending tiles bar - above your board */}
+        {isPlacingTiles && state.pendingColor && (
+          <div className="flex-shrink-0">
+            <PendingTilesBar tiles={state.pendingTiles} color={state.pendingColor} onSendAllToFloor={handleSendAllToFloor} />
+          </div>
+        )}
 
         {/* Your board */}
         {myPlayer && (
